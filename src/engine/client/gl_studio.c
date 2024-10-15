@@ -110,18 +110,11 @@ typedef struct
 // studio-related cvars 
 convar_t* r_studio_sort_textures;
 convar_t* r_drawviewmodel;
-convar_t* cl_righthand = NULL;
 convar_t* cl_himodels;
 
 convar_t* r_shadows; //magic nipples - shadows
-convar_t* r_shadow_height;
-convar_t* r_shadow_x;
-convar_t* r_shadow_y;
-convar_t* r_shadow_alpha;
 
-convar_t* r_viewmodelfov; //magic nipples - weapon fov
 convar_t* r_aliaslerp; //magic nipples - shadows
-convar_t* r_warp; //magic nipples - vertex warp
 convar_t* r_elightsys;
 convar_t* r_elight_speed;
 convar_t* r_lighting_interp;
@@ -152,16 +145,8 @@ void R_StudioInit( void )
 	r_studio_sort_textures = Cvar_Get( "r_studio_sort_textures", "0", FCVAR_ARCHIVE, "change draw order for additive meshes" );
 	r_drawviewmodel = Cvar_Get( "r_drawviewmodel", "1", 0, "draw firstperson weapon model" );
 
-	r_shadows = Cvar_Get("r_old_shadows", "0", 0, "drop shadow"); //magic nipples - shadows
-	r_shadow_height = Cvar_Get("r_old_shadow_height", "0", 0, "shadow height");
-	r_shadow_x = Cvar_Get("r_old_shadow_x", "0.75", 0, "shadow distance x axis");
-	r_shadow_y = Cvar_Get("r_old_shadow_y", "0", 0, "shadow distance y-axis");
-	r_shadow_alpha = Cvar_Get("r_old_shadow_alpha", "0.5", 0, "shadow opacity");
+	r_shadows = Cvar_Get("r_shadows", "0", FCVAR_ARCHIVE, "drop shadow"); //magic nipples - shadows
 
-	r_viewmodelfov = Cvar_Get("r_viewmodel_fov", "90", FCVAR_ARCHIVE, "fov of view models"); //magic nipples - weapon fov
-	r_aliaslerp = Cvar_Get("r_lerpmodels", "0", FCVAR_ARCHIVE, "interpolate quake model animations");
-
-	r_warp = Cvar_Get("r_studiowarp", "0", FCVAR_ARCHIVE, "ps1 vertex jiggle"); //magic nipples - weapon fov
 	r_elightsys = Cvar_Get("r_elights", "0", FCVAR_ARCHIVE, "lighting system based on elights");
 	r_elight_speed = Cvar_Get("r_elight_speed", "0.15", FCVAR_ARCHIVE, "fade speed of elights");
 	r_lighting_interp = Cvar_Get("r_lightlerp_speed", "0.25", FCVAR_ARCHIVE, "studio lighting interpolation and speed");
@@ -197,24 +182,6 @@ static void R_StudioSetupTimings( void )
 		g_studio.time = host.realtime;
 		g_studio.frametime = host.frametime;
 	}
-}
-
-/*
-================
-R_AllowFlipViewModel
-
-should a flip the viewmodel if cl_righthand is set to 1
-================
-*/
-static qboolean R_AllowFlipViewModel( cl_entity_t *e )
-{
-	if( cl_righthand && cl_righthand->value > 0 )
-	{
-		if( e == &clgame.viewent )
-			return true;
-	}
-
-	return false;
 }
 
 /*
@@ -627,13 +594,6 @@ void R_StudioSetUpTransform( cl_entity_t *e )
 	if( e->player ) angles[PITCH] = 0.0f;
 
 	Matrix3x4_CreateFromEntity( g_studio.rotationmatrix, angles, origin, 1.0f );
-
-	if( tr.fFlipViewModel )
-	{
-		g_studio.rotationmatrix[0][1] = -g_studio.rotationmatrix[0][1];
-		g_studio.rotationmatrix[1][1] = -g_studio.rotationmatrix[1][1];
-		g_studio.rotationmatrix[2][1] = -g_studio.rotationmatrix[2][1];
-	}
 }
 
 /*
@@ -2173,9 +2133,7 @@ static void R_LightLambert(vec4_t light[MAX_LOCALLIGHTS], const vec3_t normal, c
 	{
 		float	r;
 
-		if (tr.fFlipViewModel)
-			r = DotProduct(normal, light[i]);
-		else r = -DotProduct(normal, light[i]);
+		r = -DotProduct(normal, light[i]);
 
 		if( r > 0.0f )
 		{
@@ -2565,25 +2523,6 @@ static void R_StudioDrawPoints( void )
 			Matrix3x4_VectorTransform( g_studio.bonestransform[pvertbone[i]], pstudioverts[i], g_studio.verts[i] );
 
 			R_LightStrength( pvertbone[i], pstudioverts[i], g_studio.lightpos[i] );
-		}
-	}
-
-	if (r_warp->value > 0)
-	{
-		int p;
-
-		for (i = 0; i < MAXSTUDIOVERTS; i++)
-		{
-			if (RI.currententity == &clgame.viewent)
-			{
-				for (p = 0; p < 3; p++)
-					g_studio.verts[p][i] = floor(40 * g_studio.verts[p][i]) / 40;
-			}
-			else
-			{
-				for (p = 0; p < 3; p++)
-					g_studio.verts[p][i] = floor(06 * g_studio.verts[p][i]) / 06;
-			}
 		}
 	}
 
@@ -3247,8 +3186,7 @@ R_StudioDrawPointsShadow
 */
 static void R_StudioDrawPointsShadow( void )
 {
-	float		*av, height;
-	float		vec_x, vec_y;
+	float		*av;
 	mstudiomesh_t	*pmesh;
 	vec3_t		point;
 	int		i, k;
@@ -3257,18 +3195,6 @@ static void R_StudioDrawPointsShadow( void )
 
 	if( FBitSet( RI.currententity->curstate.effects, EF_NOSHADOW ))
 		return;
-
-	if( glState.stencilEnabled )
-		pglEnable( GL_STENCIL_TEST );
-
-	//height = g_studio.lightspot[2] + 1.0f;
-	//vec_x = -g_studio.lightvec[0] * 8.0f;
-	//vec_y = -g_studio.lightvec[1] * 8.0f;
-
-	//magic nipples - no more shadows from lightsources because it looks bad
-	height = r_shadow_height->value;
-	vec_y = r_shadow_y->value;
-	vec_x = r_shadow_x->value;
 
 	trEnd[0] = RI.currententity->origin[0];
 	trEnd[1] = RI.currententity->origin[1];
@@ -3302,15 +3228,9 @@ static void R_StudioDrawPointsShadow( void )
 				for (; i > 0; i--, ptricmds += 4)
 				{
 					av = g_studio.verts[ptricmds[0]];
-					//point[0] = av[0] - (vec_x * ( av[2] - g_studio.lightspot[2] ));
-					//point[1] = av[1] - (vec_y * ( av[2] - g_studio.lightspot[2] ));
-					//point[2] = g_studio.lightspot[2] + height + 0.15f;
-					//point[2] = tr.endpos[2] + height + 0.16f; //magic nipples - height of shadow off ground
-
-					point[0] = av[0];
+					point[0] = av[0] - ((av[2] - g_studio.lightspot[2]));
 					point[1] = av[1];
-					point[2] = tr.endpos[2] + height + 0.16f; //magic nipples - height of shadow off ground
-
+					point[2] = g_studio.lightspot[2] + 0.15f;
 					pglVertex3fv(point);
 				}
 
@@ -3319,6 +3239,7 @@ static void R_StudioDrawPointsShadow( void )
 		}
 	}
 
+		//darkkrysteq: goldsrc accurate shadows (fuckings to the xash bros)
 	if( glState.stencilEnabled )
 		pglDisable( GL_STENCIL_TEST );
 }
@@ -3372,15 +3293,14 @@ static void GL_StudioDrawShadow( void )
 	pglDepthMask( GL_TRUE );
 
 	//magic nipples - shadows | changed r_shadows.value to -> to prevent error
-	if (r_shadows->value && g_studio.rendermode != kRenderTransAdd && !FBitSet(RI.currentmodel->flags, STUDIO_AMBIENT_LIGHT))
+	if (r_shadows->value)
 	{
 		float	color = 1.0 - (tr.blend * 0.5);
 
 		pglDisable( GL_TEXTURE_2D );
 		pglBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 		pglEnable( GL_BLEND );
-		//pglColor4f( 0.0f, 0.0f, 0.0f, /*1.0f - color*/ );
-		pglColor4f(0.0f, 0.0f, 0.0f, (tr.blend - 1) + r_shadow_alpha->value);
+		pglColor4f(0.0f, 0.0f, 0.0f, (tr.blend - 1) + 0.5);
 
 		pglDepthFunc( GL_LESS );
 		R_StudioDrawPointsShadow();
@@ -3997,44 +3917,12 @@ float R_GetFarClip(void)
 }
 
 /*
-=============
-R_SetupProjectionMatrix2 //magic nipples - weapon fov
-=============
-*/
-void R_SetupProjectionMatrix2(float fov_x, float fov_y, matrix4x4 m)
-{
-	GLdouble	xMin, xMax, yMin, yMax, zNear, zFar;
-
-	if (RI.drawOrtho)
-	{
-		ref_overview_t* ov = &clgame.overView;
-		Matrix4x4_CreateOrtho(m, ov->xLeft, ov->xRight, ov->yTop, ov->yBottom, ov->zNear, ov->zFar);
-		//RI.clipFlags = 0;
-		return;
-	}
-
-	RI.farClip = R_GetFarClip();
-
-	zNear = 4.0f;
-	zFar = max(256.0f, RI.farClip);
-
-	yMax = zNear * tan(fov_y * M_PI / 360.0);
-	yMin = -yMax;
-
-	xMax = zNear * tan(fov_x * M_PI / 360.0);
-	xMin = -xMax;
-
-	Matrix4x4_CreateProjection(m, xMax, xMin, yMax, yMin, zNear, zFar);
-}
-
-/*
 =================
 R_DrawViewModel
 =================
 */
 void R_DrawViewModel( void )
 {
-	float	m_flViewmodelFov, flFOVOffset, x, fov_x, fov_y;
 	cl_entity_t	*view = &clgame.viewent;
 
 	R_GatherPlayerLight();
@@ -4062,13 +3950,6 @@ void R_DrawViewModel( void )
 	pglDepthRange( gldepthmin, gldepthmin + 0.3f * ( gldepthmax - gldepthmin ));
 	RI.currentmodel = RI.currententity->model;
 
-	// backface culling for left-handed weapons
-	if( R_AllowFlipViewModel( RI.currententity ) || g_iBackFaceCull )
-	{
-		tr.fFlipViewModel = true;
-		pglFrontFace( GL_CW );
-	}
-
 	switch( RI.currententity->model->type )
 	{
 	case mod_alias:
@@ -4076,53 +3957,12 @@ void R_DrawViewModel( void )
 		break;
 	case mod_studio:
 		R_StudioSetupTimings();
-		//R_StudioDrawModelInternal( RI.currententity, STUDIO_RENDER );
-
-		//magic nipples - weapon fov below this till the 'break;'
-		// Find the offset our current FOV is from the default value
-		flFOVOffset = cl.local.scr_fov - RI.fov_x;
-
-		// Adjust the viewmodel's FOV to move with any FOV offsets on the viewer's end
-		m_flViewmodelFov = r_viewmodelfov->value - flFOVOffset;
-
-		// calc local FOV
-		x = glState.width / tan(m_flViewmodelFov / 360 * M_PI);
-
-		fov_x = m_flViewmodelFov;
-		fov_y = atan(glState.height / x) * 360 / M_PI;
-
-		if (fov_x != RI.fov_x)
-		{
-			//matrix4x4	oldProjectionMatrix = RI.projectionMatrix;
-			R_SetupProjectionMatrix2(fov_x, fov_y, RI.projectionMatrix);
-
-			pglMatrixMode(GL_PROJECTION);
-			GL_LoadMatrix(RI.projectionMatrix);
-
-			R_StudioDrawModelInternal(RI.currententity, STUDIO_RENDER);
-
-			// restore original matrix
-			//RI.projectionMatrix = oldProjectionMatrix;
-
-			pglMatrixMode(GL_PROJECTION);
-			GL_LoadMatrix(RI.projectionMatrix);
-		}
-		else
-		{
-			R_StudioDrawModelInternal(RI.currententity, STUDIO_RENDER);
-		}
+		R_StudioDrawModelInternal( RI.currententity, STUDIO_RENDER );
 		break;
 	}
 
 	// restore depth range
 	pglDepthRange( gldepthmin, gldepthmax );
-
-	// backface culling for left-handed weapons
-	if( R_AllowFlipViewModel( RI.currententity ) || g_iBackFaceCull )
-	{
-		tr.fFlipViewModel = false;
-		pglFrontFace( GL_CCW );
-	}
 }
 
 /*

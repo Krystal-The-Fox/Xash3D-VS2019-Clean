@@ -821,14 +821,6 @@ qboolean R_SpriteOccluded( cl_entity_t *e, vec3_t origin, float *pscale )
 		float	blend;
 		vec3_t	v;
 
-		// don't reflect this entity in mirrors
-		if (e->curstate.effects & EF_NOREFLECT && RI.params & RP_MIRRORVIEW) //Magic Nipples - readding mirrors
-			return true;
-
-		// draw only in mirrors
-		if (e->curstate.effects & EF_REFLECTONLY && !(RI.params & RP_MIRRORVIEW)) //Magic Nipples - readding mirrors
-			return true;
-
 		if (r_glowspeed->value <= 0 || e->curstate.iuser1 <= 0)
 		{
 			TriWorldToScreen(origin, v);

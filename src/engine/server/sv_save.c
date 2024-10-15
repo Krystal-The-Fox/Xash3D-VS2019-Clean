@@ -2115,10 +2115,8 @@ void SV_SaveGame( const char *pName )
 	SaveBuildComment( comment, sizeof( comment ));
 	result = SaveGameSlot( savename, comment );
 
-	if (Q__stricmp(pName, "autosave"))
-		CL_HudMessage("GAMESAVED"); // defined in titles.txt
-	else
-		CL_HudMessage("AUTOSAVED");
+	CL_HudMessage("GAMESAVED"); // defined in titles.txt
+	//darkkrysteq: use saved only its more faithfull to goldsrc
 }
 
 /* 

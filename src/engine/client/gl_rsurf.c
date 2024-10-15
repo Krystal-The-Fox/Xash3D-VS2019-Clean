@@ -1279,7 +1279,6 @@ R_RenderBrushPoly
 void R_RenderBrushPoly( msurface_t *fa, int cull_type )
 {
 	qboolean	is_dynamic = false;
-	qboolean	is_mirror = false; //Magic Nipples - readding mirrors
 	int	maps;
 	texture_t	*t;
 
@@ -1290,33 +1289,9 @@ void R_RenderBrushPoly( msurface_t *fa, int cull_type )
 
 	t = R_TextureAnimation( fa );
 
-	//GL_Bind( GL_TEXTURE0, t->gl_texturenum );
+	GL_Bind( GL_TEXTURE0, t->gl_texturenum ); //if mirrors removed. leave just this line.
 
-	//Magic Nipples - readding mirrors
-	if (RP_NORMALPASS() && fa->flags & SURF_REFLECT)
-	{
-		GL_AdjustFogColor(0.5);
-		if (fa->info->mirrortexturenum)
-		{		
-			GL_Bind(GL_TEXTURE0, fa->info->mirrortexturenum);
-			is_mirror = true;
-
-			// BEGIN WATER STUFF
-			if (fa->flags & SURF_DRAWTURB)
-			{
-				R_BeginDrawMirror(fa);
-				GL_Bind(GL_TEXTURE1, t->gl_texturenum);
-				pglTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-			}
-		}
-		else GL_Bind(GL_TEXTURE0, t->gl_texturenum); // dummy
-
-		// DEBUG: reset the mirror texture after drawing
-		fa->info->mirrortexturenum = 0;
-	}
-	//else GL_Bind(GL_TEXTURE0, t->gl_texturenum); //if mirrors removed. leave just this line.
-
-	else if( FBitSet( fa->flags, SURF_DRAWTURB )) //might not need else
+	if( FBitSet( fa->flags, SURF_DRAWTURB )) //might not need else
 	{	
 		R_UploadRipples(t);
 
@@ -1324,6 +1299,7 @@ void R_RenderBrushPoly( msurface_t *fa, int cull_type )
 		EmitWaterPolys( fa, (cull_type == CULL_BACKSIDE));
 		return;
 	}
+
 	else GL_Bind(GL_TEXTURE0, t->gl_texturenum); //if mirrors removed. leave just this line.
 
 	if( t->fb_texturenum )
@@ -1362,9 +1338,7 @@ void R_RenderBrushPoly( msurface_t *fa, int cull_type )
 		}
 	}
 
-	if (is_mirror) R_BeginDrawMirror(fa); //Magic Nipples - readding mirrors
 	DrawGLPoly(fa->polys, 0.0f, 0.0f);
-	if (is_mirror) R_EndDrawMirror();  //Magic Nipples - readding mirrors
 
 	if( RI.currententity->curstate.rendermode == kRenderNormal )
 	{
@@ -1389,13 +1363,6 @@ void R_RenderBrushPoly( msurface_t *fa, int cull_type )
 			chrome_surfaces = es;
 			draw_chromes = true;
 		}
-	}
-
-	// NOTE: draw mirror through in mirror show dummy lightmapped texture
-	if (fa->flags & SURF_REFLECT && RP_NORMALPASS()) //Magic Nipples - readding mirrors
-	{
-		GL_ResetFogColor();
-		return; // no lightmaps for mirror
 	}
 
 	if( FBitSet( fa->flags, SURF_DRAWTILED ))
@@ -1729,10 +1696,6 @@ void R_DrawBrushModel( cl_entity_t *e )
 	if( !RI.drawWorld ) return;
 
 	clmodel = e->model;
-
-	// don't reflect this entity in mirrors
-	if (e->curstate.effects & EF_NOREFLECT && RI.params & RP_MIRRORVIEW) //Magic Nipples - readding mirrors
-		return;
 
 	if( !VectorIsNull( e->angles ))
 	{
@@ -2345,18 +2308,7 @@ void GL_RebuildLightmaps( void )
 		GL_FreeTexture( tr.lightmapTextures[i] );
 	}
 
-	// release old mirror textures
-	for (i = 0; i < MAX_MIRRORS; i++) //Magic Nipples - readding mirrors
-	{
-		if (!tr.mirrorTextures[i]) break;
-		GL_FreeTexture(tr.mirrorTextures[i]);
-	}
-
 	memset( tr.lightmapTextures, 0, sizeof( tr.lightmapTextures ));
-
-	//Magic Nipples - readding mirrors
-	memset(tr.mirror_entities, 0, sizeof(tr.mirror_entities));
-	memset(tr.mirrorTextures, 0, sizeof(tr.mirrorTextures));
 
 	gl_lms.current_lightmap_texture = 0;
 
@@ -2422,10 +2374,6 @@ void GL_BuildLightmaps( void )
 	tr.modelviewIdentity = false;
 	tr.realframecount = 1;
 	nColinElim = 0;
-
-	//Magic Nipples - readding mirrors
-	tr.num_mirror_entities = 0;
-	tr.num_mirrors_used = 0;
 
 	// setup the texture for dlights
 	R_InitDlightTexture();

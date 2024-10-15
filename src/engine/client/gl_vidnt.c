@@ -61,7 +61,6 @@ convar_t* r_lighting_modulate;
 convar_t* r_lighting_ambient;
 convar_t* r_detailtextures;
 convar_t* r_drawentities;
-convar_t* r_adjust_fov;
 convar_t* r_showtree;
 convar_t* r_decals;
 convar_t* r_novis;
@@ -74,8 +73,6 @@ convar_t* r_lightmap;
 
 convar_t* r_overbright; //magic nipples - overbright
 convar_t* r_studio_lambert;
-convar_t* gl_allow_mirrors; //Magic Nipples - readding mirrors
-convar_t* gl_mirror_msaa;
 convar_t* gammaboost;
 
 convar_t* vid_displayfrequency;
@@ -83,7 +80,6 @@ convar_t* vid_fullscreen;
 convar_t* vid_brightness;
 convar_t* vid_gamma;
 convar_t* vid_mode;
-convar_t* r_downsample; //magic nipples - down sampling
 convar_t* r_ripple;
 convar_t* r_ripple_updatetime;
 convar_t* r_ripple_spawntime;
@@ -1628,7 +1624,6 @@ void GL_InitCommands( void )
 	r_lighting_extended = Cvar_Get( "r_lighting_extended", "1", FCVAR_ARCHIVE, "allow to get lighting from bmodels too" );
 	r_lighting_modulate = Cvar_Get( "r_lighting_modulate", "0.6", FCVAR_ARCHIVE, "lightstyles modulate scale" );
 	r_lighting_ambient = Cvar_Get( "r_lighting_ambient", "0.3", FCVAR_ARCHIVE, "map ambient lighting scale" );
-	r_adjust_fov = Cvar_Get( "r_adjust_fov", "1", FCVAR_ARCHIVE, "making FOV adjustment for wide-screens" );
 	r_novis = Cvar_Get( "r_novis", "0", 0, "ignore vis information (perfomance test)" );
 	r_nocull = Cvar_Get( "r_nocull", "0", 0, "ignore frustrum culling (perfomance test)" );
 	r_detailtextures = Cvar_Get( "r_detailtextures", "0", FCVAR_ARCHIVE, "enable detail textures support, use '2' for autogenerate detail.txt" );
@@ -1642,9 +1637,7 @@ void GL_InitCommands( void )
 	r_showtree = Cvar_Get( "r_showtree", "0", FCVAR_ARCHIVE, "build the graph of visible BSP tree" );
 	r_overbright = Cvar_Get("gl_overbright", "1", FCVAR_ARCHIVE, "world overbrights"); //magic nipples - overbright
 	r_studio_lambert = Cvar_Get("r_studio_lambert", "1.495", FCVAR_ARCHIVE, "");
-	gl_allow_mirrors = Cvar_Get("gl_mirrors", "1", FCVAR_ARCHIVE, "draw mirror surfaces"); //Magic Nipples - readding mirrors
-	gl_mirror_msaa = Cvar_Get("gl_mirror_msaa", "1", FCVAR_ARCHIVE, "force msaa on mirrors to smooth reflections");
-	gammaboost = Cvar_Get("gl_texgamma", "0", FCVAR_ARCHIVE, "textures use gamma table");
+	gammaboost = Cvar_Get("gl_texgamma", "1", FCVAR_ARCHIVE, "textures use gamma table"); // on by default
 
 	window_xpos = Cvar_Get( "_window_xpos", "-1", FCVAR_RENDERINFO, "horizontal window position" );
 	window_ypos = Cvar_Get( "_window_ypos", "-1", FCVAR_RENDERINFO, "vertical window position" );
@@ -1668,10 +1661,9 @@ void GL_InitCommands( void )
 	gl_clear = Cvar_Get( "gl_clear", "1", FCVAR_ARCHIVE, "clearing screen after each frame" );
 	gl_test = Cvar_Get( "gl_test", "0", 0, "engine developer cvar for quick testing new features" );
 	gl_wireframe = Cvar_Get( "gl_wireframe", "0", FCVAR_ARCHIVE|FCVAR_SPONLY, "show wireframe overlay" );
-	//gl_round_down = Cvar_Get( "gl_round_down", "2", FCVAR_RENDERINFO, "round texture sizes to nearest POT value" );
-	gl_round_down = Cvar_Get("gl_texdivide", "0", FCVAR_ARCHIVE, "divide world/model textures by this value");
+	gl_round_down = Cvar_Get( "gl_round_down", "2", FCVAR_RENDERINFO, "round texture sizes to nearest POT value" );
 	gl_msaa = Cvar_Get( "gl_msaa", "1", FCVAR_ARCHIVE, "enable multi sample anti-aliasing" );
-	r_ripple = Cvar_Get("r_ripple", "1", FCVAR_ARCHIVE, "enable software - like water texture ripple simulation");
+	r_ripple = Cvar_Get("r_ripple", "0", FCVAR_ARCHIVE, "enable software - like water texture ripple simulation"); //darkkrysteq: off by default because we want emulate goldsrc default (gl mode)
 	r_ripple_updatetime = Cvar_Get("r_ripple_updatetime", "0.05", FCVAR_ARCHIVE, "how fast ripple simulation is");
 	r_ripple_spawntime = Cvar_Get("r_ripple_spawntime", "0.1", FCVAR_ARCHIVE, "how fast new ripples spawn");
 	r_chrometexture = Cvar_Get("r_chromes", "1", FCVAR_ARCHIVE, "draw chrome on surfaces");
@@ -1688,9 +1680,6 @@ void GL_InitCommands( void )
 	vid_mode = Cvar_Get( "vid_mode", VID_AUTOMODE, FCVAR_RENDERINFO|FCVAR_VIDRESTART, "display resolution mode" );
 	vid_fullscreen = Cvar_Get( "fullscreen", "0", FCVAR_RENDERINFO|FCVAR_VIDRESTART, "enable fullscreen mode" );
 	vid_displayfrequency = Cvar_Get ( "vid_displayfrequency", "0", FCVAR_RENDERINFO|FCVAR_VIDRESTART, "fullscreen refresh rate" );
-
-	//magic nipples - down sampling
-	r_downsample = Cvar_Get("r_scale", "0", FCVAR_ARCHIVE, "downscale the view 1 - 1/2, 2 - 1/4, etc...");
 
 	Cmd_AddCommand( "r_info", R_RenderInfo_f, "display renderer info" );
 

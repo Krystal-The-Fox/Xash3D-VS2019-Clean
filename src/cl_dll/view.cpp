@@ -26,8 +26,6 @@
 #include "shake.h"
 #include "hltv.h"
 
-#include "StencilShadowRender.h" // STENCIL SHADOWS
-
 // Spectator Mode
 extern "C" 
 {
@@ -414,7 +412,7 @@ void V_CalcViewRoll ( struct ref_params_s *pparams )
 	if (!viewentity)
 		return;
 
-	pparams->viewangles[ROLL] = V_CalcRoll(pparams->viewangles, pparams->simvel, cl_rollangle->value, cl_rollspeed->value) * 4; // magic nipples - view roll
+	pparams->viewangles[ROLL] = V_CalcRoll(pparams->viewangles, pparams->simvel, cl_rollangle->value, cl_rollspeed->value); // magic nipples - view roll
 
 	if (pparams->health <= 0 && (pparams->viewheight[2] != 0))
 	{
@@ -489,7 +487,6 @@ V_CalcRefdef
 
 ==================
 */
-extern void RenderFog(void);
 
 void V_CalcNormalRefdef ( struct ref_params_s *pparams )
 {
@@ -853,8 +850,6 @@ void V_CalcNormalRefdef ( struct ref_params_s *pparams )
 	lasttime = pparams->time;
 
 	v_origin = pparams->vieworg;
-
-	RenderFog();
 }
 
 void V_SmoothInterpolateAngles( float * startAngle, float * endAngle, float * finalAngle, float degreesPerSec )
@@ -1641,7 +1636,6 @@ void DLLEXPORT V_CalcRefdef( struct ref_params_s *pparams )
 		V_CalcNormalRefdef ( pparams );
 	}
 
-	SetupBuffer(); // STENCIL SHADOWS
 /*
 // Example of how to overlay the whole screen with red at 50 % alpha
 #define SF_TEST
@@ -1712,8 +1706,8 @@ void V_Init (void)
 	cl_waterdist		= gEngfuncs.pfnRegisterVariable( "cl_waterdist","4", 0 );
 	cl_chasedist		= gEngfuncs.pfnRegisterVariable( "cl_chasedist","112", 0 );
 
-	cl_rollspeed		= gEngfuncs.pfnRegisterVariable("cl_rollspeed", "325", FCVAR_CLIENTDLL | FCVAR_ARCHIVE);
-	cl_rollangle		= gEngfuncs.pfnRegisterVariable("cl_rollangle", "1", FCVAR_CLIENTDLL | FCVAR_ARCHIVE);
+	cl_rollspeed		= gEngfuncs.pfnRegisterVariable("cl_rollspeed", "200", FCVAR_CLIENTDLL | FCVAR_ARCHIVE);
+	cl_rollangle		= gEngfuncs.pfnRegisterVariable("cl_rollangle", "2.0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE); // darkkrysteq: accurate won values
 }
 
 

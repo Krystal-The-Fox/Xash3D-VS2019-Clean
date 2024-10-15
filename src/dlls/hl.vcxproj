@@ -38,7 +38,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)..\build\valve\bin\</OutDir>
+    <OutDir>..\..\..\valve\bin\</OutDir>
     <IntDir>$(SolutionDir)build\$(TargetName)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
@@ -170,8 +170,6 @@
     <ClCompile Include="doors.cpp" />
     <ClCompile Include="effects.cpp" />
     <ClCompile Include="egon.cpp" />
-    <ClCompile Include="env_fog.cpp" />
-    <ClCompile Include="env_model.cpp" />
     <ClCompile Include="explode.cpp" />
     <ClCompile Include="flyingmonster.cpp" />
     <ClCompile Include="func_break.cpp" />
@@ -199,7 +197,6 @@
     <ClCompile Include="h_cycler.cpp" />
     <ClCompile Include="h_export.cpp" />
     <ClCompile Include="ichthyosaur.cpp" />
-    <ClCompile Include="info_shadow.cpp" />
     <ClCompile Include="islave.cpp" />
     <ClCompile Include="items.cpp" />
     <ClCompile Include="leech.cpp" />
@@ -220,7 +217,6 @@
     <ClCompile Include="plats.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="python.cpp" />
-    <ClCompile Include="rain.cpp" />
     <ClCompile Include="rat.cpp" />
     <ClCompile Include="roach.cpp" />
     <ClCompile Include="rpg.cpp" />

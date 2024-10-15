@@ -253,10 +253,6 @@ void V_GetRefParams( ref_params_t *fd, ref_viewpass_t *rvp )
 	// first we need to compute FOV and other things that needs for frustum properly work
 	rvp->fov_y = V_CalcFov( &rvp->fov_x, clgame.viewport[2], clgame.viewport[3] );
 
-	// adjust FOV for widescreen
-	if( glState.wideScreen && r_adjust_fov->value )
-		V_AdjustFov( &rvp->fov_x, &rvp->fov_y, clgame.viewport[2], clgame.viewport[3], false );
-
 	rvp->flags = 0;
 
 	if( fd->onlyClientDraw )

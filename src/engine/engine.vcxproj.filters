@@ -350,12 +350,6 @@
     <ClCompile Include="common\zone.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="client\gl_downsample.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="client\gl_mirror.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="common\imagelib\img_png.c">
       <Filter>Source Files</Filter>
     </ClCompile>

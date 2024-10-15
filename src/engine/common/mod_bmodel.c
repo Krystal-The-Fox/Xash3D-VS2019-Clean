@@ -1930,7 +1930,6 @@ static void Mod_LoadTextures( dbspmodel_t *bmod )
 		GL_FreeTexture( tr.alphaskyTexture );
 		tr.solidskyTexture = 0;
 		tr.alphaskyTexture = 0;
-		world.has_mirrors = false; //Magic Nipples - readding mirrors
 	}
 
 	if( !bmod->texdatasize )
@@ -2330,38 +2329,6 @@ static void Mod_LoadSurfaces( dbspmodel_t *bmod )
 		if (Mod_LooksLikeWaterTexture(tex->name))
 			SetBits(out->flags, SURF_DRAWTURB);
 
-		//===================================================
-		char* c1file, * p1file;
-		string	token1;
-		string	chrome1tex;
-
-		c1file = FS_LoadFile("gfx/chrome.txt", NULL, false);
-		if (c1file)
-		{
-			p1file = c1file;
-
-			while ((p1file = COM_ParseFile(p1file, token1)) != NULL)
-			{
-				Q_strncpy(chrome1tex, token1, sizeof(chrome1tex));
-
-				if (!Q_strncmp(tex->name, chrome1tex, sizeof(chrome1tex)))
-				{
-					out->flags |= SURF_CHROME;
-
-					p1file = COM_ParseFile(p1file, token1);
-					out->chromescale = Q_atof(token1);
-
-					p1file = COM_ParseFile(p1file, token1);
-					strncpy(out->chromename, token1, sizeof(out->chromename));
-
-					p1file = COM_ParseFile(p1file, token1);
-					out->chromespeed = Q_atoi(token1);
-				}
-			}
-			Mem_Free(c1file);
-		}
-		//===================================================
-
 		if( !Q_strncmp( tex->name, "scroll", 6 ))
 			SetBits( out->flags, SURF_CONVEYOR );
 
@@ -2371,13 +2338,6 @@ static void Mod_LoadSurfaces( dbspmodel_t *bmod )
 		// g-cont. added a combined conveyor-transparent
 		if( !Q_strncmp( tex->name, "{scroll", 7 ))
 			SetBits( out->flags, SURF_CONVEYOR|SURF_TRANSPARENT );
-
-		// support !reflect for reflected water
-		if (!Q_strcmp(tex->name, "reflect1") || !Q_strncmp(tex->name, "!reflect", 8)) //Magic Nipples - readding mirrors
-		{
-			out->flags |= SURF_REFLECT;
-			world.has_mirrors = true;
-		}
 
 		if( tex->name[0] == '{' )
 			SetBits( out->flags, SURF_TRANSPARENT );

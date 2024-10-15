@@ -11,48 +11,6 @@
 #pragma once
 #endif
 
-// STENCIL SHADOWS BEGIN
-#include "windows.h"
-#include "gl/gl.h"
-#include "gl/glext.h"
-
-#include <vector>
-#include <map>
-#include <string>
-
-const int MaxShadowFaceCount = 8192;
-
-struct Edge
-{
-	GLushort vertex0;
-	GLushort vertex1;
-	GLushort face0;
-	GLushort face1;
-};
-
-struct Face
-{
-	Face() {}
-	Face(GLushort v0, GLushort v1, GLushort v2) : vertex0(v0), vertex1(v1), vertex2(v2) {}
-	GLushort vertex0;
-	GLushort vertex1;
-	GLushort vertex2;
-};
-
-struct SubModelData
-{
-	std::vector<Face> faces;
-	std::vector<Edge> edges;
-};
-
-struct ModelExtraData
-{
-	std::vector<SubModelData> submodels;
-};
-
-typedef std::map<std::string, ModelExtraData> ExtraDataMap;
-// STENCIL SHADOWS END
-
 /*
 ====================
 CStudioModelRenderer
@@ -226,52 +184,6 @@ public:
 	// Concatenated bone and light transforms
 	float			(*m_pbonetransform) [ MAXSTUDIOBONES ][ 3 ][ 4 ];
 	float			(*m_plighttransform)[ MAXSTUDIOBONES ][ 3 ][ 4 ];
-
-	// STENCIL SHADOWS START
-	private:
-		ExtraDataMap	m_ExtraData;
-		ModelExtraData* m_pCurretExtraData;
-
-		vec3_t		m_ShadowDir;
-
-		void			SetupModelExtraData(void);
-		void			BuildFaces(SubModelData& dst, mstudiomodel_t* src);
-		void			BuildEdges(SubModelData& dst, mstudiomodel_t* src);
-		void			AddEdge(SubModelData& dst, int face, int v0, int v1);
-
-		void			DrawShadowsForEnt(void);
-		void			DrawShadowVolume(SubModelData& data, mstudiomodel_t* model);
-
-		// Tells if a face is facing the light
-		bool            m_trianglesFacingLight[MAXSTUDIOTRIANGLES];
-		// Index array used for rendering
-		GLushort        m_shadowVolumeIndexes[MAXSTUDIOTRIANGLES * 3];
-
-public:
-		// Tells if we should draw a shadow for this ent
-		virtual bool	StudioShouldDrawShadow(void);
-		virtual void	R_StudioComputeSkinMatrix(mstudioboneweight_t* boneweights, float result[3][4]); // STENCIL SHADOWS
-		void			GetShadowVector(vec3_t& vecOut);
-
-		// Toggles rendering of stencil shadows
-		cvar_t* m_pCvarDrawStencilShadows;
-		// Extrusion length for stencil shadow volumes
-		cvar_t* m_pCvarShadowVolumeExtrudeDistance;
-
-		cvar_t* m_pSkylightDirX;
-		cvar_t* m_pSkylightDirY;
-		cvar_t* m_pSkylightDirZ;
-
-		cvar_t* m_pCvarShadowAlpha;
-		cvar_t* m_pCvarShadowWeight;
-
-		qboolean		m_bTwoSideSupported;
-
-		// Opengl functions
-		PFNGLACTIVETEXTUREPROC            glActiveTexture;
-		PFNGLCLIENTACTIVETEXTUREPROC    glClientActiveTexture;
-		PFNGLACTIVESTENCILFACEEXTPROC    glActiveStencilFaceEXT;
-	// STENCIL SHADOWS END
 };
 
 #endif // STUDIOMODELRENDERER_H

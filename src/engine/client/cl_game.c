@@ -4059,11 +4059,5 @@ qboolean CL_LoadProgs( const char *name )
 	// initialize VGui
 	VGui_Startup ();
 
-	// trying to grab them from client.dll
-	cl_righthand = Cvar_FindVar( "cl_righthand" );
-
-	if( cl_righthand == NULL )
-		cl_righthand = Cvar_Get( "cl_righthand", "0", FCVAR_ARCHIVE, "flip viewmodel (left to right)" );
-
 	return true;
 }

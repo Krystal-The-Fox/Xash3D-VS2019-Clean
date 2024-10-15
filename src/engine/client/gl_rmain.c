@@ -340,12 +340,6 @@ void R_SetupFrustum( void )
 {
 	ref_overview_t	*ov = &clgame.overView;
 
-	if( RP_NORMALPASS() && ( cl.local.waterlevel >= 3 )) //magic nipples - underwater view stretching
-	{
-		RI.fov_x = atan( tan( DEG2RAD( RI.fov_x ) / 2 ) * ( 0.97 + sin( cl.time * 1.5 ) * 0.03 )) * 2 / (M_PI / 180.0);
-		RI.fov_y = atan( tan( DEG2RAD( RI.fov_y ) / 2 ) * ( 1.03 - sin( cl.time * 1.5 ) * 0.03 )) * 2 / (M_PI / 180.0);
-	}
-
 	// build the transformation matrix for the given view angles
 	AngleVectors( RI.viewangles, RI.vforward, RI.vright, RI.vup );
 
@@ -360,37 +354,6 @@ void R_SetupFrustum( void )
 	if( RI.drawOrtho )
 		GL_FrustumInitOrtho( &RI.frustum, ov->xLeft, ov->xRight, ov->yTop, ov->yBottom, ov->zNear, ov->zFar );
 	else GL_FrustumInitProj( &RI.frustum, 0.0f, R_GetFarClip(), RI.fov_x, RI.fov_y ); // NOTE: we ignore nearplane here (mirrors only)
-}
-
-/*
-=============
-R_SetupProjectionMatrix2 //magic nipples - weapon fov
-=============
-*/
-static void R_SetupProjectionMatrix2(float fov_x, float fov_y, matrix4x4 m)
-{
-	GLdouble	xMin, xMax, yMin, yMax, zNear, zFar;
-
-	if (RI.drawOrtho)
-	{
-		ref_overview_t* ov = &clgame.overView;
-		Matrix4x4_CreateOrtho(m, ov->xLeft, ov->xRight, ov->yTop, ov->yBottom, ov->zNear, ov->zFar);
-		//RI.clipFlags = 0;
-		return;
-	}
-
-	RI.farClip = R_GetFarClip();
-
-	zNear = 4.0f;
-	zFar = max(256.0f, RI.farClip);
-
-	yMax = zNear * tan(fov_y * M_PI / 360.0);
-	yMin = -yMax;
-
-	xMax = zNear * tan(fov_x * M_PI / 360.0);
-	xMin = -xMax;
-
-	Matrix4x4_CreateProjection(m, xMax, xMin, yMax, yMin, zNear, zFar);
 }
 
 /*
@@ -1026,31 +989,6 @@ void R_RenderScene( void )
 
 	R_DrawWaterSurfaces();
 
-	if (RI.drawWorld)
-		R_DownSampling(); //magic nipples - down sampling
-
-	R_EndGL();
-}
-
-void R_RenderSceneMirror(void) //magic nipples - separate mirror render scene to fix downsample and stencil shadows
-{
-	if (!cl.worldmodel && RI.drawWorld)
-		Host_Error("R_RenderView: NULL worldmodel\n");
-
-	//R_PushDlights();
-	R_SetupFrustum();
-	R_SetupFrame();
-	R_SetupGL(true);
-	R_Clear(~0);
-
-	R_MarkLeaves();
-	//R_DrawFog();
-	//R_CheckGLFog();
-	R_DrawWorld();
-	//R_CheckFog();
-	R_DrawEntitiesOnList();
-	//R_DrawWaterSurfaces();
-
 	R_EndGL();
 }
 
@@ -1214,14 +1152,6 @@ void R_RenderFrame( const ref_viewpass_t *rvp )
 		R_RunViewmodelEvents();
 
 	tr.realframecount++; // right called after viewmodel events
-
-	if (gl_allow_mirrors->value) //Magic Nipples - readding mirrors
-	{
-		// render mirrors
-		R_FindMirrors();
-		R_DrawMirrors();
-
-	}
 	R_RenderScene();
 }
 

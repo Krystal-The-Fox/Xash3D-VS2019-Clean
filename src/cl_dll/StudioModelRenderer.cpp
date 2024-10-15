@@ -71,17 +71,6 @@ void CStudioModelRenderer::Init( void )
 	m_plighttransform		= (float (*)[MAXSTUDIOBONES][3][4])IEngineStudio.StudioGetLightTransform();
 	m_paliastransform		= (float (*)[3][4])IEngineStudio.StudioGetAliasTransform();
 	m_protationmatrix		= (float (*)[3][4])IEngineStudio.StudioGetRotationMatrix();
-
-	// STENCIL SHADOWS START
-	m_pCvarDrawStencilShadows = CVAR_CREATE("r_shadows", "1", FCVAR_ARCHIVE);
-	m_pCvarShadowAlpha = CVAR_CREATE("r_shadow_alpha", "0.5", FCVAR_ARCHIVE);
-	m_pCvarShadowWeight = CVAR_CREATE("r_shadow_smooth", "0", FCVAR_ARCHIVE);
-	m_pCvarShadowVolumeExtrudeDistance = CVAR_CREATE("r_shadow_extrude_distance", "2048", FCVAR_ARCHIVE);
-
-	m_pSkylightDirX = CVAR_CREATE("shadow_vec_x", "0.3", 0);
-	m_pSkylightDirY = CVAR_CREATE("shadow_vec_y", "0.5", 0);
-	m_pSkylightDirZ = CVAR_CREATE("shadow_vec_z", "1", 0);
-	// STENCIL SHADOWS END
 }
 
 /*
@@ -110,26 +99,6 @@ CStudioModelRenderer::CStudioModelRenderer( void )
 	m_pSubModel			= NULL;
 	m_pPlayerInfo		= NULL;
 	m_pRenderModel		= NULL;
-
-	// STENCIL SHADOWS START
-	m_pCvarDrawStencilShadows = NULL;
-	m_pCvarShadowAlpha = NULL;
-	m_pCvarShadowWeight = NULL;
-	m_pCvarShadowVolumeExtrudeDistance = NULL;
-	m_pSkylightDirX = NULL;
-	m_pSkylightDirY = NULL;
-	m_pSkylightDirZ = NULL;
-
-	glActiveTexture = (PFNGLACTIVETEXTUREPROC)wglGetProcAddress("glActiveTexture");
-	glClientActiveTexture = (PFNGLCLIENTACTIVETEXTUREPROC)wglGetProcAddress("glClientActiveTexture");
-	glActiveStencilFaceEXT = (PFNGLACTIVESTENCILFACEEXTPROC)wglGetProcAddress("glActiveStencilFaceEXT");
-
-	/*if (glActiveStencilFaceEXT)		// magic nipples - the twosided stencil shadows are broken as of now. Will turn back on after a fix is found.
-		m_bTwoSideSupported = true;		// regular drawing works fine as far as I can tell.
-	else*/
-		m_bTwoSideSupported = false;
-
-	// STENCIL SHADOWS END
 }
 
 /*
@@ -1544,11 +1513,6 @@ int CStudioModelRenderer::StudioDrawPlayer( int flags, entity_state_t *pplayer )
 
 			model_t *pweaponmodel = IEngineStudio.GetModelByIndex( pplayer->weaponmodel );
 
-			// STENCIL SHADOWS BEGIN
-			model_t* psavedrendermodel = m_pRenderModel;
-			m_pRenderModel = pweaponmodel;
-			// STENCIL SHADOWS END
-
 			m_pStudioHeader = (studiohdr_t *)IEngineStudio.Mod_Extradata (pweaponmodel);
 			IEngineStudio.StudioSetHeader( m_pStudioHeader );
 
@@ -1561,8 +1525,6 @@ int CStudioModelRenderer::StudioDrawPlayer( int flags, entity_state_t *pplayer )
 			StudioCalcAttachments( );
 
 			*m_pCurrentEntity = saveent;
-
-			m_pRenderModel = psavedrendermodel; // STENCIL SHADOWS
 		}
 	}
 
@@ -1690,15 +1652,6 @@ void CStudioModelRenderer::StudioRenderFinal_Hardware( void )
 
 	rendermode = IEngineStudio.GetForceFaceFlags() ? kRenderTransAdd : m_pCurrentEntity->curstate.rendermode;
 
-	// STENCIL SHADOWS START
-	// draw before entity itself, so it would not get any self-shadowing
-	if (rendermode == kRenderNormal && m_pCurrentEntity != gEngfuncs.GetViewModel())
-	{
-		if (StudioShouldDrawShadow())
-			DrawShadowsForEnt();
-	}
-	// STENCIL SHADOWS END
-
 	IEngineStudio.SetupRenderer( rendermode );
 
 	if (m_pCvarDrawEntities->value == 2)
@@ -1723,7 +1676,7 @@ void CStudioModelRenderer::StudioRenderFinal_Hardware( void )
 
 			IEngineStudio.GL_SetRenderMode( rendermode );
 			IEngineStudio.StudioDrawPoints();
-			//IEngineStudio.GL_StudioDrawShadow();
+			IEngineStudio.GL_StudioDrawShadow();
 		}
 	}
 

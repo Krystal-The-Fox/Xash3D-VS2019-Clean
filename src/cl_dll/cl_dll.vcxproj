@@ -45,7 +45,7 @@
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)..\build\valve\bin\</OutDir>
+    <OutDir>..\..\..\valve\bin\</OutDir>
     <IntDir>$(SolutionDir)build\$(TargetName)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
@@ -201,12 +201,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="parsemsg.cpp" />
-    <ClCompile Include="rain.cpp" />
     <ClCompile Include="saytext.cpp" />
     <ClCompile Include="statusbar.cpp" />
     <ClCompile Include="status_icons.cpp" />
-    <ClCompile Include="StencilShadow.cpp" />
-    <ClCompile Include="StencilShadowRender.cpp" />
     <ClCompile Include="StudioModelRenderer.cpp" />
     <ClCompile Include="studio_util.cpp" />
     <ClCompile Include="text_message.cpp" />
@@ -257,8 +254,6 @@
     <ClInclude Include="kbutton.h" />
     <ClInclude Include="overview.h" />
     <ClInclude Include="parsemsg.h" />
-    <ClInclude Include="rain.h" />
-    <ClInclude Include="StencilShadowRender.h" />
     <ClInclude Include="StudioModelRenderer.h" />
     <ClInclude Include="studio_util.h" />
     <ClInclude Include="util.h" />

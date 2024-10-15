@@ -710,7 +710,6 @@ extern convar_t	*cl_clockreset;
 extern convar_t	*cl_fixtimerate;
 extern convar_t	*gl_showtextures;
 extern convar_t	*cl_bmodelinterp;
-extern convar_t	*cl_righthand;
 extern convar_t	*cl_lw;		// local weapons
 extern convar_t	*cl_showevents;
 extern convar_t	*scr_centertime;

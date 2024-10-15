@@ -1434,16 +1434,8 @@ void R_DrawAliasModel( cl_entity_t *e )
 		R_AliasSetRemapColors( topcolor, bottomcolor );
 	}
 
-	if( tr.fFlipViewModel )
-	{
-		pglTranslatef( m_pAliasHeader->scale_origin[0], -m_pAliasHeader->scale_origin[1], m_pAliasHeader->scale_origin[2] );
-		pglScalef( m_pAliasHeader->scale[0], -m_pAliasHeader->scale[1], m_pAliasHeader->scale[2] );
-	}
-	else
-	{
-		pglTranslatef( m_pAliasHeader->scale_origin[0], m_pAliasHeader->scale_origin[1], m_pAliasHeader->scale_origin[2] );
-		pglScalef( m_pAliasHeader->scale[0], m_pAliasHeader->scale[1], m_pAliasHeader->scale[2] );
-	}
+	pglTranslatef( m_pAliasHeader->scale_origin[0], m_pAliasHeader->scale_origin[1], m_pAliasHeader->scale_origin[2] );
+	pglScalef( m_pAliasHeader->scale[0], m_pAliasHeader->scale[1], m_pAliasHeader->scale[2] );
 
 	anim = (int)(g_alias.time * 10) & 3;
 	skin = bound( 0, RI.currententity->curstate.skin, m_pAliasHeader->numskins - 1 );
