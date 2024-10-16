@@ -322,8 +322,6 @@ typedef enum
 	scrshot_snapshot,	// in-game snapshot
 	scrshot_plaque,  	// levelshot
 	scrshot_savegame,	// saveshot
-	scrshot_envshot,	// cubemap view
-	scrshot_skyshot,	// skybox view
 	scrshot_mapshot	// overview layer
 } scrshot_t;
 
@@ -632,9 +630,6 @@ typedef struct
 
 	scrshot_t		scrshot_request;		// request for screen shot
 	scrshot_t		scrshot_action;		// in-action
-	const float	*envshot_vieworg;		// envshot position
-	int		envshot_viewsize;		// override cvar
-	qboolean		envshot_disable_vis;	// disable VIS on server while makes an envshots
 	string		shotname;
 
 	// download info
@@ -687,7 +682,6 @@ extern convar_t	cl_allow_upload;
 extern convar_t	cl_download_ingame;
 extern convar_t	*cl_nopred;
 extern convar_t	*cl_showfps;
-extern convar_t	*cl_envshot_size;
 extern convar_t	*cl_timeout;
 extern convar_t	*cl_nodelta;
 extern convar_t	*cl_interp;
@@ -734,8 +728,6 @@ void CL_Quit_f( void );
 void CL_ScreenShot_f( void );
 void CL_SnapShot_f( void );
 void CL_PlayCDTrack_f( void );
-void CL_EnvShot_f( void );
-void CL_SkyShot_f( void );
 void CL_SaveShot_f( void );
 void CL_LevelShot_f( void );
 void CL_SetSky_f( void );

@@ -3901,7 +3901,7 @@ byte *pfnSetFatPVS( const float *org )
 {
 	qboolean	fullvis = false;
 
-	if( !sv.worldmodel->visdata || sv_novis->value || !org || CL_DisableVisibility( ))
+	if( !sv.worldmodel->visdata || sv_novis->value || !org )
 		fullvis = true;
 
 	ASSERT( pfnGetCurrentPlayer() != -1 );
@@ -3951,7 +3951,7 @@ byte *pfnSetFatPAS( const float *org )
 {
 	qboolean	fullvis = false;
 
-	if( !sv.worldmodel->visdata || sv_novis->value || !org || CL_DisableVisibility( ))
+	if( !sv.worldmodel->visdata || sv_novis->value || !org )
 		fullvis = true;
 
 	ASSERT( pfnGetCurrentPlayer() != -1 );

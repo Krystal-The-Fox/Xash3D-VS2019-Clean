@@ -593,7 +593,6 @@ LONG IN_WndProc( HWND hWnd, UINT uMsg, UINT wParam, LONG lParam )
 			Q_strncpy( cls.shotname, "clipboard.bmp", sizeof( cls.shotname ));
 			cls.scrshot_action = scrshot_snapshot; // build new frame for screenshot
 			host.write_to_clipboard = true;
-			cls.envshot_vieworg = NULL;
 			break;
 		}
 		break;

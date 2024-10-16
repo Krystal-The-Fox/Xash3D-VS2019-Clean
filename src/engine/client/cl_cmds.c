@@ -238,9 +238,6 @@ void CL_ScreenShot_f( void )
 		Q_strncpy( cls.shotname, checkname, sizeof( cls.shotname ));
 		cls.scrshot_action = scrshot_normal; // build new frame for screenshot
 	}
-
-	cls.envshot_vieworg = NULL; // no custom view
-	cls.envshot_viewsize = 0;
 }
 
 /* 
@@ -279,51 +276,6 @@ void CL_SnapShot_f( void )
 		Q_strncpy( cls.shotname, checkname, sizeof( cls.shotname ));
 		cls.scrshot_action = scrshot_snapshot; // build new frame for screenshot
 	}
-
-	cls.envshot_vieworg = NULL; // no custom view
-	cls.envshot_viewsize = 0;
-}
-
-/* 
-================== 
-CL_EnvShot_f
-
-cubemap view
-================== 
-*/
-void CL_EnvShot_f( void )
-{
-	if( Cmd_Argc() < 2 )
-	{
-		Con_Printf( S_USAGE "envshot <shotname>\n" );
-		return;
-	}
-
-	Q_sprintf( cls.shotname, "gfx/env/%s", Cmd_Argv( 1 ));
-	cls.scrshot_action = scrshot_envshot;	// build new frame for envshot
-	cls.envshot_vieworg = NULL; // no custom view
-	cls.envshot_viewsize = 0;
-}
-
-/* 
-================== 
-CL_SkyShot_f
-
-skybox view
-================== 
-*/
-void CL_SkyShot_f( void )
-{
-	if( Cmd_Argc() < 2 )
-	{
-		Con_Printf( S_USAGE "skyshot <shotname>\n" );
-		return;
-	}
-
-	Q_sprintf( cls.shotname, "gfx/env/%s", Cmd_Argv( 1 ));
-	cls.scrshot_action = scrshot_skyshot;	// build new frame for skyshot
-	cls.envshot_vieworg = NULL; // no custom view
-	cls.envshot_viewsize = 0;
 }
 
 /* 

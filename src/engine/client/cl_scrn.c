@@ -27,7 +27,6 @@ convar_t *scr_viewsize;
 convar_t *cl_testlights;
 convar_t *cl_allow_levelshots;
 convar_t *cl_levelshot_name;
-convar_t *cl_envshot_size;
 convar_t *v_dark;
 
 typedef struct
@@ -239,10 +238,6 @@ void SCR_MakeScreenShot( void )
 	qboolean	iRet = false;
 	int	viewsize;
 
-	if( cls.envshot_viewsize > 0 )
-		viewsize = cls.envshot_viewsize;
-	else viewsize = cl_envshot_size->value;
-
 	switch( cls.scrshot_action )
 	{
 	case scrshot_normal:
@@ -256,12 +251,6 @@ void SCR_MakeScreenShot( void )
 		break;
 	case scrshot_savegame:
 		iRet = VID_ScreenShot( cls.shotname, VID_MINISHOT );
-		break;
-	case scrshot_envshot:
-		iRet = VID_CubemapShot( cls.shotname, viewsize, cls.envshot_vieworg, false );
-		break;
-	case scrshot_skyshot:
-		iRet = VID_CubemapShot( cls.shotname, viewsize, cls.envshot_vieworg, true );
 		break;
 	case scrshot_mapshot:
 		iRet = VID_ScreenShot( cls.shotname, VID_MAPSHOT );
@@ -279,10 +268,7 @@ void SCR_MakeScreenShot( void )
 	}
 	else Con_Printf( S_ERROR "Unable to write %s\n", cls.shotname );
 
-	cls.envshot_vieworg = NULL;
 	cls.scrshot_action = scrshot_inactive;
-	cls.envshot_disable_vis = false;
-	cls.envshot_viewsize = 0;
 	cls.shotname[0] = '\0';
 }
 
@@ -718,7 +704,6 @@ void SCR_Init( void )
 	scr_loading = Cvar_Get( "scr_loading", "0", 0, "loading bar progress" );
 	scr_download = Cvar_Get( "scr_download", "-1", 0, "downloading bar progress" );
 	cl_testlights = Cvar_Get( "cl_testlights", "0", 0, "test dynamic lights" );
-	cl_envshot_size = Cvar_Get( "cl_envshot_size", "256", FCVAR_ARCHIVE, "envshot size of cube side" );
 	v_dark = Cvar_Get( "v_dark", "0", 0, "starts level from dark screen" );
 	scr_viewsize = Cvar_Get( "viewsize", "120", FCVAR_ARCHIVE, "screen size" );
 	

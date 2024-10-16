@@ -2655,7 +2655,6 @@ void Con_DrawSolidConsole( int lines )
 		stringLen = Con_StringLength( curbuild );
 
 		fraction = lines / (float)glState.height;
-		color[3] = Q_min( fraction * 2.0f, 1.0f ) * 255; // fadeout version number
 
 		for( i = 0; i < stringLen; i++ )
 			width += Con_DrawCharacter( start + width, 0, curbuild[i], color );

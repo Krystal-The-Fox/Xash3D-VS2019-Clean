@@ -994,41 +994,12 @@ void R_RenderScene( void )
 
 /*
 ===============
-R_DoResetGamma
-
-gamma will be reset for
-some type of screenshots
-===============
-*/
-qboolean R_DoResetGamma( void )
-{
-	switch( cls.scrshot_action )
-	{
-	case scrshot_envshot:
-	case scrshot_skyshot:
-		return true;
-	default:
-		return false;
-	}
-}
-
-/*
-===============
 R_CheckGamma
 ===============
 */
 void R_CheckGamma(void)
 {
-	if( R_DoResetGamma( ))
-	{
-		// paranoia cubemaps uses this
-		BuildGammaTable( 1.8f, 0.0f );
-
-		// paranoia cubemap rendering
-		if (clgame.drawFuncs.GL_BuildLightmaps)
-			clgame.drawFuncs.GL_BuildLightmaps();
-	}
-	else if( FBitSet( vid_gamma->flags, FCVAR_CHANGED ) || FBitSet( vid_brightness->flags, FCVAR_CHANGED ))
+	if( FBitSet( vid_gamma->flags, FCVAR_CHANGED ) || FBitSet( vid_brightness->flags, FCVAR_CHANGED ))
 	{
 		BuildGammaTable( vid_gamma->value, vid_brightness->value );
 		glConfig.softwareGammaUpdate = true;
@@ -1321,45 +1292,6 @@ static void R_GetExtraParmsForTexture( int texture, byte *red, byte *green, byte
 	if( density ) *density = glt->fogParams[3];
 }
 
-/*
-=================
-R_EnvShot
-
-=================
-*/
-static void R_EnvShot( const float *vieworg, const char *name, int skyshot, int shotsize )
-{
-	static vec3_t viewPoint;
-
-	if( !COM_CheckString( name ))
-		return; 
-
-	if( cls.scrshot_action != scrshot_inactive )
-	{
-		if( cls.scrshot_action != scrshot_skyshot && cls.scrshot_action != scrshot_envshot )
-			Con_Printf( S_ERROR "R_%sShot: subsystem is busy, try for next frame.\n", skyshot ? "Sky" : "Env" );
-		return;
-	}
-
-	cls.envshot_vieworg = NULL; // use client view
-	Q_strncpy( cls.shotname, name, sizeof( cls.shotname ));
-
-	if( vieworg )
-	{
-		// make sure what viewpoint don't temporare
-		VectorCopy( vieworg, viewPoint );
-		cls.envshot_vieworg = viewPoint;
-		cls.envshot_disable_vis = true;
-	}
-
-	// make request for envshot
-	if( skyshot ) cls.scrshot_action = scrshot_skyshot;
-	else cls.scrshot_action = scrshot_envshot;
-
-	// catch negative values
-	cls.envshot_viewsize = max( 0, shotsize );
-}
-
 static void R_SetCurrentEntity( cl_entity_t *ent )
 {
 	RI.currententity = ent;
@@ -1531,7 +1463,7 @@ static render_api_t gRenderAPI =
 	NULL,
 	NULL,
 	CL_DrawParticlesExternal,
-	R_EnvShot,
+	NULL,
 	pfnSPR_LoadExt,
 	R_LightVec,
 	R_StudioGetTexture,

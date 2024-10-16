@@ -131,11 +131,6 @@ qboolean CL_IsTimeDemo( void )
 	return cls.timedemo;
 }
 
-qboolean CL_DisableVisibility( void )
-{
-	return cls.envshot_disable_vis;
-}
-
 qboolean CL_IsBackgroundDemo( void )
 {
 	return ( cls.demoplayback && cls.demonum != -1 );
@@ -2696,8 +2691,6 @@ void CL_InitLocal( void )
 
 	Cmd_AddCommand ("screenshot", CL_ScreenShot_f, "takes a screenshot of the next rendered frame" );
 	Cmd_AddCommand ("snapshot", CL_SnapShot_f, "takes a snapshot of the next rendered frame" );
-	Cmd_AddCommand ("envshot", CL_EnvShot_f, "takes a six-sides cubemap shot with specified name" );
-	Cmd_AddCommand ("skyshot", CL_SkyShot_f, "takes a six-sides envmap (skybox) shot with specified name" );
 	Cmd_AddCommand ("levelshot", CL_LevelShot_f, "same as \"screenshot\", used for create plaque images" );
 	Cmd_AddCommand ("saveshot", CL_SaveShot_f, "used for create save previews with LoadGame menu" );
 

@@ -494,13 +494,11 @@ void CCrossbow::SecondaryAttack()
 {
 	if (m_fInZoom)
 	{
-		m_pPlayer->pev->viewmodel = MAKE_STRING("models/v_crossbow.mdl");
 		m_pPlayer->m_iFOV = 0; // 0 means reset to default fov
 		m_fInZoom = 0;
 	}
 	else
 	{
-		m_pPlayer->pev->viewmodel = 0;
 		m_pPlayer->m_iFOV = 20;
 		m_fInZoom = 1;
 	}
@@ -525,12 +523,10 @@ void CCrossbow::WeaponIdle( void )
 	if (!m_fInZoom)
 	{
 		m_pPlayer->m_iFOV = 0;
-		m_pPlayer->pev->viewmodel = MAKE_STRING("models/v_crossbow.mdl");
 	}
 	else
 	{
 		m_pPlayer->m_iFOV = 20;
-		m_pPlayer->pev->viewmodel = 0;
 	}
 
 	m_pPlayer->GetAutoaimVector( AUTOAIM_2DEGREES );  // get the autoaim vector but ignore it;  used for autoaim crosshair in DM
